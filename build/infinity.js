@@ -79,6 +79,7 @@
 
     this.lazy = !!options.lazy;
     this.lazyFn = options.lazy || null;
+    this.delegate = options.delegate;
 
     initBuffer(this);
 
@@ -207,6 +208,10 @@
         inserted = true;
         curr.appendTo(listView.$el);
       }
+
+      if (listView.delegate) {
+        listView.delegate.trigger("listViewDidAddPage", listView, curr);
+      }
     }
   }
 
@@ -240,14 +245,23 @@
 
     // sweep any invalid old pages
     for(index = startIndex, length = lastIndex; index < length; index++) {
-      if(index < nextIndex || index >= nextLastIndex)
+      if(index < nextIndex || index >= nextLastIndex) {
+        if (listView.delegate) {
+          listView.delegate.trigger("listViewWillStashPage", listView, pages[index]);
+        }
         pages[index].stash(listView.$shadow);
+      }
     }
 
     listView.startIndex = nextIndex;
 
     insertPagesInView(listView);
     updateBuffer(listView);
+
+    if (listView.delegate !== undefined) {
+      listView.delegate.trigger("listViewDidScroll", listView);
+    }
+
     return nextIndex;
   }
 
