@@ -159,6 +159,14 @@
     return item;
   };
 
+  // ### Repartition
+  //
+  // Expose an interface to repartition items in the ListView.
+  //
+  
+  ListView.prototype.repartition = function() {
+    repartition(this);
+  };
 
   // ### cacheCoordsFor
   //
@@ -202,6 +210,9 @@
       if(inserted && curr.onscreen) inOrder = false;
 
       if(!inOrder) {
+        if (listView.delegate) {
+          listView.delegate.trigger("listViewWillStashPage", listView, curr);
+        }
         curr.stash(listView.$shadow);
         curr.appendTo(listView.$el);
       } else if(!curr.onscreen) {
@@ -209,7 +220,7 @@
         curr.appendTo(listView.$el);
       }
 
-      if (listView.delegate) {
+      if (inserted && listView.delegate) {
         listView.delegate.trigger("listViewDidAddPage", listView, curr);
       }
     }
